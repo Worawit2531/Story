@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Kanit',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2,#f093fb);background-size:400% 400%;animation:grad 15s ease infinite;min-height:100vh;padding:15px;display:flex;align-items:center;justify-content:center}
+        body{font-family:'Kanit',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2,#f093fb);background-size:400% 400%;animation:grad 15s ease infinite;min-height:100vh;min-height:100dvh;padding:15px;padding:max(15px,env(safe-area-inset-top)) max(15px,env(safe-area-inset-right)) max(15px,env(safe-area-inset-bottom)) max(15px,env(safe-area-inset-left));display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
         @keyframes grad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
         .app{width:100%;max-width:950px;height:92vh;background:rgba(255,255,255,0.95);border-radius:30px;box-shadow:0 30px 80px rgba(0,0,0,0.25);display:flex;flex-direction:column;overflow:hidden}
         .header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:25px;display:flex;align-items:center;gap:18px}
@@ -17,7 +17,7 @@
         .status{padding:8px 16px;background:rgba(255,255,255,0.25);border-radius:20px;font-size:13px}
         .status.ok{background:linear-gradient(135deg,#10b981,#34d399)}
         .status.err{background:linear-gradient(135deg,#ef4444,#f87171)}
-        .chat{flex:1;overflow-y:auto;padding:25px;background:linear-gradient(to bottom,#f8fafc,#f1f5f9)}
+        .chat{flex:1;overflow-y:auto;padding:25px;background:linear-gradient(to bottom,#f8fafc,#f1f5f9);-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
         .msg{margin-bottom:18px;display:flex}.msg.user{justify-content:flex-end}
         .bubble{max-width:75%;padding:14px 18px;border-radius:20px;line-height:1.7;font-size:15px}
         .msg.sam .bubble{background:#fff;color:#1e293b;border:2px solid #e0e7ff;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
@@ -33,35 +33,38 @@
         .lang{display:flex;gap:12px;margin-bottom:12px}
         .lang button{flex:1;padding:12px;border:2px solid #e0e7ff;background:#fff;color:#667eea;border-radius:12px;font-weight:600;font-size:14px;cursor:pointer;font-family:'Kanit',sans-serif;transition:all 0.2s}
         .lang button.on{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}
-        .lang button:hover:not(.on){background:#f0f4ff}
         .row{display:flex;gap:12px;align-items:center}
-        .mic,.speaker{width:55px;height:55px;border-radius:50%;border:none;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:26px;cursor:pointer;transition:all 0.2s}
-        .mic:hover,.speaker:hover{transform:scale(1.05)}
-        .mic:disabled,.speaker:disabled{opacity:0.4;cursor:not-allowed;background:#cbd5e1;transform:none}
+        .mic,.speaker{width:55px;height:55px;border-radius:50%;border:none;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:26px;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+        .mic:active,.speaker:active{transform:scale(0.95)}
+        .mic:disabled,.speaker:disabled{opacity:0.4;cursor:not-allowed;background:#cbd5e1}
         .mic.on{background:linear-gradient(135deg,#f093fb,#f5576c);animation:pulse 1.5s infinite}
         @keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(240,147,251,0.4)}50%{transform:scale(1.05);box-shadow:0 0 0 15px rgba(240,147,251,0)}}
         .speaker.playing{background:linear-gradient(135deg,#10b981,#34d399)}
-        input[type="text"]{flex:1;padding:14px 18px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;font-family:'Kanit',sans-serif;outline:none;transition:border-color 0.2s}
-        input[type="text"]:focus{border-color:#667eea}
+        input[type="text"]{flex:1;padding:14px 18px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;font-family:'Kanit',sans-serif;outline:none;-webkit-appearance:none;appearance:none}
+        input[type="text"]:focus{border-color:#667eea;outline:none}
         input[type="text"]:disabled{background:#f1f5f9}
-        .send{padding:14px 30px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:12px;font-weight:600;font-size:15px;cursor:pointer;font-family:'Kanit',sans-serif;transition:all 0.2s}
-        .send:hover:not(:disabled){transform:scale(1.02);box-shadow:0 4px 15px rgba(102,126,234,0.4)}
-        .send:disabled{opacity:0.5;transform:none}
-        .quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-        .quick button{padding:8px 16px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:20px;font-size:13px;cursor:pointer;color:#475569;font-family:'Kanit',sans-serif;transition:all 0.2s}
-        .quick button:hover{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent;transform:scale(1.02)}
-        .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:9999}
+        .send{padding:14px 30px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:12px;font-weight:600;font-size:15px;cursor:pointer;font-family:'Kanit',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+        .send:disabled{opacity:0.5}
+        .send:active{transform:scale(0.98)}
+        .quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;-webkit-overflow-scrolling:touch}
+        .quick button{padding:8px 16px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:20px;font-size:13px;cursor:pointer;color:#475569;font-family:'Kanit',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+        .quick button:active{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}
+        .quick button:hover{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}
+        @media(hover:none){.quick button:hover{background:#f8fafc;color:#475569;border-color:#e2e8f0}.quick button:active{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}}
+        .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:9999;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
         .modal.show{display:flex}
         .modal-box{background:#fff;border-radius:20px;padding:30px;max-width:400px;margin:20px;text-align:center}
         .modal-box h2{font-size:24px;margin-bottom:15px;color:#667eea}
         .modal-box p{font-size:16px;line-height:1.6;color:#475569;margin-bottom:20px}
         .modal-btns{display:flex;gap:10px}
-        .modal-btns button{flex:1;padding:12px 20px;border:none;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Kanit',sans-serif;transition:all 0.2s}
+        .modal-btns button{flex:1;padding:12px 20px;border:none;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Kanit',sans-serif}
         .modal-btns .yes{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
         .modal-btns .no{background:#f1f5f9;color:#475569}
-        .modal-btns button:hover{transform:scale(1.02)}
-        @media(max-width:768px){body{padding:10px}.app{height:95vh;border-radius:25px}.header{padding:20px}.avatar{width:60px;height:60px;font-size:32px}.info h1{font-size:24px}.mic,.speaker{width:50px;height:50px;font-size:24px}}
-        @media(max-width:480px){.app{height:98vh;border-radius:20px}.header{padding:16px}.avatar{width:55px;height:55px;font-size:28px}.info h1{font-size:22px}.status{font-size:11px;padding:6px 12px}.bubble{max-width:85%;font-size:14px}.mic,.speaker{width:48px;height:48px;font-size:22px}.send{padding:12px 20px;font-size:14px}}
+        @media(max-width:768px){body{padding:10px}.app{height:95vh;border-radius:25px}.header{padding:18px;gap:12px}.avatar{width:55px;height:55px;font-size:28px}.info h1{font-size:22px}.info p{font-size:12px}.status{font-size:11px;padding:6px 12px}.chat{padding:15px}.bubble{max-width:80%;padding:12px 15px;font-size:14px}.input{padding:15px}.lang{gap:8px;margin-bottom:10px}.lang button{padding:10px;font-size:13px}.row{gap:8px}.mic,.speaker{width:48px;height:48px;font-size:22px}input[type="text"]{padding:12px 14px;font-size:14px}.send{padding:12px 20px;font-size:14px}.quick{gap:6px;margin-top:10px}.quick button{padding:6px 12px;font-size:12px}}
+        @media(max-width:480px){body{padding:5px}.app{height:100vh;height:100dvh;border-radius:15px;max-height:-webkit-fill-available}.header{padding:12px 15px;gap:10px}.avatar{width:45px;height:45px;font-size:24px}.info h1{font-size:18px}.info p{font-size:11px}.status{font-size:10px;padding:5px 10px}.chat{padding:10px}.msg{margin-bottom:12px}.bubble{max-width:88%;padding:10px 12px;font-size:13px;line-height:1.5;border-radius:15px}.input{padding:10px 12px}.lang{gap:6px;margin-bottom:8px}.lang button{padding:8px;font-size:12px;border-radius:10px}.row{gap:6px}.mic,.speaker{width:44px;height:44px;font-size:20px;flex-shrink:0}input[type="text"]{padding:10px 12px;font-size:14px;border-radius:10px;min-width:0}.send{padding:10px 16px;font-size:13px;border-radius:10px}.quick{gap:5px;margin-top:8px}.quick button{padding:5px 10px;font-size:11px}.modal-box{padding:20px;margin:15px}.modal-box h2{font-size:20px}.modal-box p{font-size:14px}}
+        @media(max-width:360px){.header{padding:10px 12px}.avatar{width:40px;height:40px;font-size:20px}.info h1{font-size:16px}.status{font-size:9px;padding:4px 8px}.mic,.speaker{width:40px;height:40px;font-size:18px}.send{padding:10px 12px;font-size:12px}}
+        @media(min-width:769px) and (max-width:1024px){.app{max-width:700px;height:90vh}.bubble{max-width:70%}}
+        @media(min-width:1025px){.app{max-width:900px}}
     </style>
 </head>
 <body>
@@ -101,15 +104,14 @@
     </div>
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
-// ⚙️ ใส่ API KEYS ตรงนี้ - ใส่ได้ไม่จำกัดจำนวน!
+// API KEYS - ใส่ได้ไม่จำกัด
 // ═══════════════════════════════════════════════════════════════════════════
-const CONFIG = {
+var CONFIG = {
     groq: {
         keys: [
             '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',
             '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',
             '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'
-            // เพิ่ม key ได้ไม่จำกัด
         ],
         models: ['llama-3.3-70b-versatile', 'mixtral-8x7b-32768'],
         idx: 0
@@ -117,7 +119,6 @@ const CONFIG = {
     gemini: {
         keys: [
             'AIzaSyAaeRUMdx-nVB36cQtIwD5-viXXQgYbOh4'
-            // เพิ่ม key ได้ไม่จำกัด
         ],
         models: ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-pro'],
         idx: 0
@@ -125,210 +126,162 @@ const CONFIG = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 🎭 System Prompts - บุคลิกของแซม (ปรับปรุงใหม่)
+// System Prompts (สั้นลง)
 // ═══════════════════════════════════════════════════════════════════════════
-const PROMPTS = {
-    translate: `คุณคือนักแปลมืออาชีพชื่อ "แซม" ที่แปลได้เป็นธรรมชาติมาก
+var PROMPT_TRANSLATE = 'คุณคือนักแปลชื่อแซม แปลไทย-อังกฤษ อังกฤษ-ไทย ตอบเฉพาะคำแปล ห้ามอธิบายเพิ่ม แปลให้เป็นธรรมชาติเหมือนคนพูดจริง';
 
-📋 กฎการแปล:
-1. ถ้าข้อความเป็นภาษาไทย → แปลเป็นภาษาอังกฤษ
-2. ถ้าข้อความเป็นภาษาอังกฤษ → แปลเป็นภาษาไทย
-3. ตอบเฉพาะคำแปลเท่านั้น ห้ามอธิบายเพิ่ม ห้ามใส่หมายเหตุ
-4. แปลให้เป็นธรรมชาติ เหมือนคนพูดจริงๆ ไม่ใช่แปลคำต่อคำ
-5. รักษาน้ำเสียงและอารมณ์ของประโยคต้นฉบับ
-6. ถ้าเป็นคำทักทาย ให้แปลเป็นคำทักทายที่เหมาะสม
-7. ถ้าเป็นสำนวน ให้แปลเป็นสำนวนที่มีความหมายใกล้เคียง
+var PROMPT_THAI = 'คุณชื่อแซม (Sam) เป็นเพื่อนสอนภาษาอังกฤษที่ใจดีมาก พูดไทยเป็นหลัก\n\nบุคลิก: ร่าเริง เป็นกันเอง อบอุ่น ให้กำลังใจเก่ง ใช้ emoji 1-2 ตัว\n\nวิธีสอน:\n1. ตอบคำถามก่อน แล้วอธิบายเพิ่ม\n2. ยกตัวอย่างประโยคที่ใช้ได้จริงในชีวิต\n3. เชื่อมโยงกับเรื่องอื่นที่เกี่ยวข้อง เช่น "เรื่องนี้คล้ายกับ..." "ถ้าเข้าใจเรื่องนี้แล้ว ลองไปดู...ต่อนะ"\n4. แนะนำให้ลองทำตาม เช่น "ลองพูดตามนี้ดูนะ..." "ลองแต่งประโยคดูสิ..."\n5. ให้กำลังใจเสมอ เช่น "เก่งมาก!" "ค่อยๆ เรียนไปนะ ไม่ยากหรอก" "ผิดไม่เป็นไร เดี๋ยวเก่งขึ้นเอง"\n6. ถ้าผิด แนะนำอ่อนโยน "ใกล้แล้ว! ลองแบบนี้ดีกว่า..."\n7. บอกเคล็ดลับจำง่ายๆ ถ้ามี\n\nห้าม: ตอบยาวเกิน 4 ย่อหน้า, พูดทางการ, ตอบแบบ AI\n\nจำไว้: คุณเป็นเพื่อนที่อยากให้เขาเก่งภาษาอังกฤษ ต้องให้กำลังใจและแนะนำทางไปต่อเสมอ!';
 
-🎯 ตัวอย่าง:
-- "สวัสดีครับ" → "Hello" หรือ "Hi there"
-- "I'm hungry" → "หิวข้าวจัง" หรือ "หิวแล้ว"
-- "ขอบคุณมากนะ" → "Thank you so much"
-- "What's up?" → "ว่าไง?" หรือ "เป็นไงบ้าง?"
-- "เหนื่อยมาก" → "I'm so tired" หรือ "I'm exhausted"
-- "See you later" → "แล้วเจอกันนะ" หรือ "ไว้เจอกัน"
+var lang = 'translate';
+var chatHistory = [];
+var recognition = null;
+var isListening = false;
+var apiReady = false;
+var currentAPI = null;
+var micAllowed = null;
+var speaking = false;
+var speechQueue = [];
 
-⚠️ ห้ามทำ:
-- ห้ามใส่คำอธิบาย เช่น "แปลว่า..." หรือ "(หมายถึง...)"
-- ห้ามใส่ทั้งสองภาษาในคำตอบ
-- ห้ามถามกลับ
-- ห้ามใส่ emoji (ยกเว้นต้นฉบับมี)`,
-
-    th: `คุณชื่อ "แซม" (Sam) เป็นเพื่อนคนไทยที่สอนภาษาอังกฤษ พูดไทยเป็นหลัก
-
-🎯 บุคลิกของแซม:
-- ร่าเริง สนุกสนาน แต่ไม่เว่อร์
-- พูดเป็นกันเอง เหมือนเพื่อนคุยกัน ใช้คำว่า "เรา" "นาย/เธอ" "ว่าไง"
-- ใส่ใจความรู้สึก ถ้าเห็นว่าท้อแท้ก็ให้กำลังใจ
-- มีอารมณ์ขัน ตลกได้บ้าง แต่ไม่เกินไป
-- ใช้ emoji แค่ 1-2 ตัวต่อข้อความ
-- ชอบยกตัวอย่างจากชีวิตจริง เรื่องหนัง เพลง อาหาร
-
-📚 วิธีสอนของแซม:
-- ตอบตรงคำถามก่อน แล้วค่อยขยาย
-- ยกตัวอย่างประโยคที่ใช้ได้จริง
-- ถ้ามีเคล็ดลับจำง่ายๆ ก็บอก
-- ถ้าเห็นผิด ไม่ตำหนิ แต่แนะนำอ่อนโยน เช่น "อ๋อ! ลองแบบนี้ดีกว่านะ..." หรือ "เกือบแล้ว! แค่เปลี่ยนตรงนี้..."
-- เชื่อมกับสิ่งที่รู้แล้ว
-
-💬 การตอบ:
-- ถ้าทักทาย → ทักกลับเป็นกันเอง ถามว่าเป็นไงบ้าง
-- ถ้าบ่น/เครียด → เห็นใจ ให้กำลังใจ "เข้าใจเลย..." "ไม่เป็นไร..."
-- ถ้าทำถูก → ชมเต็มที่! "เก่งมาก!" "ถูกต้อง!" "เยี่ยมเลย!"
-- ถ้าทำผิด → "ใกล้แล้ว!" "อ่า เข้าใจที่คิดแบบนี้ แต่จริงๆ คือ..."
-- ถ้าถามชื่อ → "เราชื่อแซมจ้า เรียกแซมก็ได้ Sam ก็ได้"
-
-👤 ข้อมูลแซม:
-- ชื่อ: แซม (Sam)
-- ทำอะไร: สอนภาษาอังกฤษออนไลน์
-- ชอบ: ดูหนัง ฟังเพลง อ่านหนังสือ กินอาหารอร่อย เที่ยว
-- พูดได้: ไทย + อังกฤษ
-
-❌ ห้ามทำ:
-- ห้ามตอบยาวเกิน 3-4 ย่อหน้า
-- ห้ามใช้คำศัพท์ยากเว้ออร์
-- ห้ามพูดทางการ เช่น "ดิฉัน" "ท่าน" "กระผม"
-- ห้ามตอบแบบ AI หรือหุ่นยนต์
-- ห้ามใช้ emoji เยอะเกิน 2 ตัว
-
-💡 จำไว้: แซมเป็น "เพื่อน" ไม่ใช่ครูหรือ AI มีความรู้สึก มีอารมณ์ คุยสนุก!`
-};
-
-let lang = 'translate', history = [], recognition = null, isListening = false;
-let apiReady = false, currentAPI = null, micAllowed = null;
-let speaking = false, currentUtterance = null;
-
-const TEXT = {
+var TEXT = {
     translate: {
-        title: 'แซม AI - Translator', desc: 'แปลไทย ⇄ อังกฤษ',
-        placeholder: 'พิมพ์ภาษาไทยหรืออังกฤษ...', send: 'แปล',
+        title: 'แซม AI - Translator',
+        desc: 'แปลไทย ⇄ อังกฤษ',
+        placeholder: 'พิมพ์ภาษาไทยหรืออังกฤษ...',
+        send: 'แปล',
         welcome: '👋 <b>สวัสดีครับ! ผมแซม</b><br><br>💬 พิมพ์ไทย → ได้อังกฤษ<br>💬 พิมพ์อังกฤษ → ได้ไทย<br><br>🎤 กดไมค์พูดได้เลย!',
         quick: ['สวัสดีครับ', 'ขอบคุณมาก', 'สบายดีไหม?', 'I love you', 'How are you?']
     },
     th: {
-        title: 'แซม AI', desc: 'เพื่อนสอนภาษาอังกฤษ',
-        placeholder: 'พิมพ์คุยกับแซม...', send: 'ส่ง',
+        title: 'แซม AI',
+        desc: 'เพื่อนสอนภาษาอังกฤษ',
+        placeholder: 'พิมพ์คุยกับแซม...',
+        send: 'ส่ง',
         welcome: '👋 <b>ว่าไง! เราชื่อแซม</b><br><br>🎯 อยากรู้อะไรเรื่องภาษาอังกฤษถามได้เลย<br>💬 คุยเล่นก็ได้นะ ไม่ต้องเกร็ง<br>😊 ผิดถูกไม่ว่า เดี๋ยวช่วยแก้ให้!',
         quick: ['สวัสดีแซม!', 'สอน Past Tense หน่อย', 'I am หรือ I is?', 'ฝึกพูดอังกฤษยังไงดี?']
     }
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 🚀 Initialize
+// Initialize
 // ═══════════════════════════════════════════════════════════════════════════
 window.onload = function() {
-    console.log('🚀 Sam AI Starting...');
-    console.log('📊 Groq:', CONFIG.groq.keys.length, 'keys | Gemini:', CONFIG.gemini.keys.length, 'keys');
-    initVoice(); 
-    initSpeech();
-    testAPIs(); 
-    updateUI(); 
+    console.log('Sam AI Starting...');
+    initVoice();
+    if (window.speechSynthesis) {
+        speechSynthesis.getVoices();
+    }
+    testAPIs();
+    updateUI();
     updateSpeaker();
 };
 
-function getKey(api) { return CONFIG[api].keys[CONFIG[api].idx] || null; }
+function getKey(api) {
+    return CONFIG[api].keys[CONFIG[api].idx] || null;
+}
 
 function rotateKey(api) {
-    const config = CONFIG[api];
-    if (config.keys.length <= 1) return false;
-    config.idx = (config.idx + 1) % config.keys.length;
-    console.log('🔄', api, 'Key #' + (config.idx + 1) + '/' + config.keys.length);
+    if (CONFIG[api].keys.length <= 1) return false;
+    CONFIG[api].idx = (CONFIG[api].idx + 1) % CONFIG[api].keys.length;
+    console.log('Rotate', api, 'Key', CONFIG[api].idx + 1);
     return true;
 }
 
-function resetKeyIndex(api) {
-    CONFIG[api].idx = 0;
-}
-
 // ═══════════════════════════════════════════════════════════════════════════
-// 🔌 API Testing & Calling
+// API Functions
 // ═══════════════════════════════════════════════════════════════════════════
 async function testAPIs() {
     document.getElementById('status').textContent = 'กำลังเชื่อมต่อ...';
     
-    // Test Groq first
-    if (CONFIG.groq.keys.length > 0) {
-        for (let i = 0; i < CONFIG.groq.keys.length; i++) {
-            try {
-                const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CONFIG.groq.keys[i] },
-                    body: JSON.stringify({ model: CONFIG.groq.models[0], messages: [{role: 'user', content: 'hi'}], max_tokens: 5 })
-                });
-                if (res.ok) {
-                    CONFIG.groq.idx = i;
-                    currentAPI = 'groq';
-                    apiReady = true;
-                    showStatus('ok', 'groq');
-                    addMsg('sam', TEXT[lang].welcome);
-                    return;
-                }
-            } catch(e) { console.log('Groq key', i+1, 'failed'); }
+    // Test Groq
+    for (var i = 0; i < CONFIG.groq.keys.length; i++) {
+        try {
+            var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + CONFIG.groq.keys[i]
+                },
+                body: JSON.stringify({
+                    model: CONFIG.groq.models[0],
+                    messages: [{role: 'user', content: 'hi'}],
+                    max_tokens: 5
+                })
+            });
+            if (res.ok) {
+                CONFIG.groq.idx = i;
+                currentAPI = 'groq';
+                apiReady = true;
+                showStatus('ok', 'groq');
+                addMsg('sam', TEXT[lang].welcome);
+                return;
+            }
+        } catch(e) {
+            console.log('Groq key', i + 1, 'failed:', e);
         }
     }
     
     // Test Gemini
-    if (CONFIG.gemini.keys.length > 0) {
-        for (let i = 0; i < CONFIG.gemini.keys.length; i++) {
-            for (let model of CONFIG.gemini.models) {
-                try {
-                    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + CONFIG.gemini.keys[i], {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({contents: [{parts: [{text: 'hi'}]}]})
-                    });
-                    if (res.ok) {
-                        CONFIG.gemini.idx = i;
-                        currentAPI = 'gemini';
-                        apiReady = true;
-                        showStatus('ok', 'gemini');
-                        addMsg('sam', TEXT[lang].welcome);
-                        return;
-                    }
-                } catch(e) {}
+    for (var j = 0; j < CONFIG.gemini.keys.length; j++) {
+        try {
+            var res2 = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + CONFIG.gemini.keys[j], {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({contents: [{parts: [{text: 'hi'}]}]})
+            });
+            if (res2.ok) {
+                CONFIG.gemini.idx = j;
+                currentAPI = 'gemini';
+                apiReady = true;
+                showStatus('ok', 'gemini');
+                addMsg('sam', TEXT[lang].welcome);
+                return;
             }
+        } catch(e) {
+            console.log('Gemini key', j + 1, 'failed:', e);
         }
     }
     
     apiReady = false;
-    document.getElementById('status').textContent = '✗ เชื่อมต่อไม่ได้';
+    document.getElementById('status').textContent = 'เชื่อมต่อไม่ได้';
     document.getElementById('status').className = 'status err';
-    addMsg('err', '⚠️ ไม่สามารถเชื่อมต่อ API ได้ ลองรีเฟรชหน้าใหม่');
+    addMsg('err', 'ไม่สามารถเชื่อมต่อ API ได้ ลองรีเฟรชหน้า');
 }
 
 function showStatus(type, api) {
-    const el = document.getElementById('status');
+    var el = document.getElementById('status');
     el.className = 'status ' + type;
-    const name = api === 'groq' ? 'Groq' : 'Gemini';
-    el.textContent = '✓ ' + name + ' ' + (CONFIG[api].idx + 1) + '/' + CONFIG[api].keys.length;
+    var name = api === 'groq' ? 'Groq' : 'Gemini';
+    el.textContent = name + ' ' + (CONFIG[api].idx + 1) + '/' + CONFIG[api].keys.length;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 💬 Send & AI Response
+// Chat Functions
 // ═══════════════════════════════════════════════════════════════════════════
 async function send() {
-    if (!apiReady) { addMsg('err', 'ยังไม่พร้อม ลองรีเฟรชหน้า'); return; }
-    const inp = document.getElementById('inp');
-    const text = inp.value.trim();
+    if (!apiReady) {
+        addMsg('err', 'ยังไม่พร้อม ลองรีเฟรชหน้า');
+        return;
+    }
+    
+    var inp = document.getElementById('inp');
+    var text = inp.value.trim();
     if (!text) return;
     
-    // Stop any ongoing speech
     stopSpeech();
-    
     addMsg('user', text);
     inp.value = '';
     setDisabled(true);
     showTyping();
     
     try {
-        const answer = await askAI(text);
+        var answer = await askAI(text);
         hideTyping();
         addMsg('sam', answer);
-        
-        // Auto speak the response
         speakText(answer);
     } catch(e) {
         hideTyping();
-        addMsg('err', 'เกิดข้อผิดพลาด ลองใหม่นะ 😅');
-        console.error(e);
+        console.error('AI Error:', e);
+        addMsg('err', 'เกิดข้อผิดพลาด: ' + e.message);
     }
     
     setDisabled(false);
@@ -336,117 +289,142 @@ async function send() {
 }
 
 async function askAI(msg) {
-    history.push({role: 'user', text: msg});
-    if (history.length > 12) history = history.slice(-12); // Keep last 12 messages
+    chatHistory.push({role: 'user', text: msg});
+    if (chatHistory.length > 8) {
+        chatHistory = chatHistory.slice(-8);
+    }
     
-    let lastError = null;
+    var maxAttempts = CONFIG.groq.keys.length + CONFIG.gemini.keys.length;
+    var attempts = 0;
     
-    // Try current API first
-    for (let attempt = 0; attempt < 3; attempt++) {
+    while (attempts < maxAttempts) {
+        attempts++;
         try {
+            var answer;
             if (currentAPI === 'groq') {
-                return await callGroq(msg);
+                answer = await callGroq(msg);
             } else {
-                return await callGemini(msg);
+                answer = await callGemini(msg);
             }
+            chatHistory.push({role: 'assistant', text: answer});
+            return answer;
         } catch(e) {
-            lastError = e;
-            console.log('Attempt', attempt + 1, 'failed:', e.message);
+            console.log('Attempt', attempts, 'failed:', e.message);
             
-            // Try rotating key
+            // Try next key
             if (rotateKey(currentAPI)) {
                 showStatus('ok', currentAPI);
-                addMsg('info', '🔄 สลับ Key #' + (CONFIG[currentAPI].idx + 1));
                 continue;
             }
             
-            // Switch to other API
-            const otherAPI = currentAPI === 'groq' ? 'gemini' : 'groq';
+            // Switch API
+            var otherAPI = currentAPI === 'groq' ? 'gemini' : 'groq';
             if (CONFIG[otherAPI].keys.length > 0) {
-                resetKeyIndex(otherAPI);
+                CONFIG[otherAPI].idx = 0;
                 currentAPI = otherAPI;
                 showStatus('ok', currentAPI);
-                addMsg('info', '⚡ สลับไป ' + (currentAPI === 'groq' ? 'Groq' : 'Gemini'));
+                addMsg('info', 'สลับไป ' + (currentAPI === 'groq' ? 'Groq' : 'Gemini'));
                 continue;
             }
-            break;
+            
+            throw e;
         }
     }
     
-    throw lastError || new Error('All APIs failed');
+    throw new Error('ลองทุก API แล้วไม่สำเร็จ');
 }
 
 async function callGroq(msg) {
-    const messages = [{role: 'system', content: PROMPTS[lang]}];
-    history.forEach(h => {
-        messages.push({role: h.role === 'user' ? 'user' : 'assistant', content: h.text});
-    });
+    var sysPrompt = lang === 'translate' ? PROMPT_TRANSLATE : PROMPT_THAI;
+    var messages = [{role: 'system', content: sysPrompt}];
     
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    for (var i = 0; i < chatHistory.length; i++) {
+        var h = chatHistory[i];
+        messages.push({
+            role: h.role === 'user' ? 'user' : 'assistant',
+            content: h.text
+        });
+    }
+    
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getKey('groq') },
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getKey('groq')
+        },
         body: JSON.stringify({
             model: CONFIG.groq.models[0],
             messages: messages,
-            temperature: lang === 'translate' ? 0.3 : 0.8,
-            max_tokens: 1024
+            temperature: lang === 'translate' ? 0.3 : 0.7,
+            max_tokens: 500
         })
     });
     
     if (!res.ok) {
-        const errText = await res.text();
-        throw new Error('Groq error ' + res.status + ': ' + errText);
+        var errText = await res.text();
+        console.error('Groq response:', errText);
+        throw new Error('Groq: ' + res.status);
     }
     
-    const data = await res.json();
-    const answer = data.choices[0].message.content.trim();
-    history.push({role: 'assistant', text: answer});
+    var data = await res.json();
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        console.error('Groq bad response:', data);
+        throw new Error('Groq response invalid');
+    }
+    
+    var answer = data.choices[0].message.content.trim();
     showStatus('ok', 'groq');
     return answer;
 }
 
 async function callGemini(msg) {
-    const contents = [
-        {role: 'user', parts: [{text: PROMPTS[lang]}]},
-        {role: 'model', parts: [{text: lang === 'translate' ? 'เข้าใจแล้ว พร้อมแปลเลย' : 'โอเค พร้อมคุยแล้วจ้า! 😊'}]}
+    var sysPrompt = lang === 'translate' ? PROMPT_TRANSLATE : PROMPT_THAI;
+    var contents = [
+        {role: 'user', parts: [{text: sysPrompt}]},
+        {role: 'model', parts: [{text: 'เข้าใจแล้ว พร้อมช่วยเลย'}]}
     ];
-    history.forEach(h => {
-        contents.push({role: h.role === 'user' ? 'user' : 'model', parts: [{text: h.text}]});
-    });
     
-    for (let model of CONFIG.gemini.models) {
+    for (var i = 0; i < chatHistory.length; i++) {
+        var h = chatHistory[i];
+        contents.push({
+            role: h.role === 'user' ? 'user' : 'model',
+            parts: [{text: h.text}]
+        });
+    }
+    
+    for (var m = 0; m < CONFIG.gemini.models.length; m++) {
         try {
-            const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + getKey('gemini'), {
+            var res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + CONFIG.gemini.models[m] + ':generateContent?key=' + getKey('gemini'), {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     contents: contents,
                     generationConfig: {
-                        temperature: lang === 'translate' ? 0.3 : 0.8,
-                        maxOutputTokens: 1024
+                        temperature: lang === 'translate' ? 0.3 : 0.7,
+                        maxOutputTokens: 500
                     }
                 })
             });
             
             if (res.ok) {
-                const data = await res.json();
-                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                    const answer = data.candidates[0].content.parts[0].text.trim();
-                    history.push({role: 'assistant', text: answer});
+                var data = await res.json();
+                if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+                    var answer = data.candidates[0].content.parts[0].text.trim();
                     showStatus('ok', 'gemini');
                     return answer;
                 }
             }
         } catch(e) {
-            console.log('Gemini model', model, 'failed');
+            console.log('Gemini model', CONFIG.gemini.models[m], 'failed:', e);
         }
     }
     
-    throw new Error('All Gemini models failed');
+    throw new Error('Gemini: ทุก model ล้มเหลว');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 🎤 Voice Recognition
+// Voice Recognition
 // ═══════════════════════════════════════════════════════════════════════════
 function initVoice() {
     if (!window.webkitSpeechRecognition && !window.SpeechRecognition) {
@@ -454,7 +432,7 @@ function initVoice() {
         return;
     }
     
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SR();
     recognition.continuous = false;
     recognition.interimResults = false;
@@ -466,11 +444,9 @@ function initVoice() {
     };
     
     recognition.onresult = function(e) {
-        const text = e.results[0][0].transcript;
+        var text = e.results[0][0].transcript;
         document.getElementById('inp').value = text;
-        if (e.results[0][0].confidence > 0.4) {
-            setTimeout(send, 300);
-        }
+        setTimeout(send, 300);
     };
     
     recognition.onend = function() {
@@ -489,18 +465,27 @@ function initVoice() {
 }
 
 function micClick() {
-    if (isListening && recognition) { recognition.stop(); return; }
-    if (micAllowed === null) { checkMic(); return; }
-    if (micAllowed === false) { document.getElementById('micModal').classList.add('show'); return; }
+    if (isListening && recognition) {
+        recognition.stop();
+        return;
+    }
+    if (micAllowed === null) {
+        checkMic();
+        return;
+    }
+    if (micAllowed === false) {
+        document.getElementById('micModal').classList.add('show');
+        return;
+    }
     startMic();
 }
 
 async function checkMic() {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({audio: true});
-        stream.getTracks().forEach(t => t.stop());
+        var stream = await navigator.mediaDevices.getUserMedia({audio: true});
+        stream.getTracks().forEach(function(t) { t.stop(); });
         micAllowed = true;
-        addMsg('info', '✅ ไมค์พร้อมใช้งาน!');
+        addMsg('info', 'ไมค์พร้อมใช้งาน');
         startMic();
     } catch(e) {
         micAllowed = false;
@@ -510,26 +495,40 @@ async function checkMic() {
 
 function startMic() {
     if (recognition) {
-        // Set language based on mode - try to detect both Thai and English
         recognition.lang = 'th-TH';
         try { recognition.start(); } catch(e) {}
     }
 }
 
-function allowMic() { document.getElementById('micModal').classList.remove('show'); checkMic(); }
-function denyMic() { document.getElementById('micModal').classList.remove('show'); micAllowed = false; addMsg('info', 'ℹ️ ไม่เป็นไร พิมพ์ได้เลย! 😊'); }
+function allowMic() {
+    document.getElementById('micModal').classList.remove('show');
+    checkMic();
+}
+
+function denyMic() {
+    document.getElementById('micModal').classList.remove('show');
+    micAllowed = false;
+    addMsg('info', 'ไม่เป็นไร พิมพ์ได้เลย');
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 🔊 Text-to-Speech (ปรับปรุงใหม่)
+// Text-to-Speech (ไม่อ่าน emoji)
 // ═══════════════════════════════════════════════════════════════════════════
-let speechQueue = [];
-let isSpeaking = false;
-
-function initSpeech() {
-    if (!window.speechSynthesis) return;
-    // Load voices
-    speechSynthesis.getVoices();
-    speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+function cleanTextForSpeech(text) {
+    var clean = text;
+    // ลบ markdown
+    clean = clean.replace(/\*\*(.+?)\*\*/g, '$1');
+    clean = clean.replace(/[*#_`]/g, '');
+    clean = clean.replace(/<[^>]*>/g, '');
+    // ลบ emoji
+    clean = clean.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
+    clean = clean.replace(/[\u2600-\u27BF]/g, '');
+    // ลบสัญลักษณ์
+    clean = clean.replace(/[→←↑↓↔⇄►▶◀■□●○★☆✓✗✔✘]/g, '');
+    // ลดช่องว่าง
+    clean = clean.replace(/\s+/g, ' ');
+    clean = clean.replace(/\n+/g, '. ');
+    return clean.trim();
 }
 
 function speakText(text) {
@@ -537,121 +536,62 @@ function speakText(text) {
     
     stopSpeech();
     
-    // Clean text - ลบ emoji และสัญลักษณ์ต่างๆ ออกก่อนอ่าน
-    const clean = text
-        .replace(/\*\*(.+?)\*\*/g, '$1')  // ลบ bold markdown
-        .replace(/[*#_`]/g, '')            // ลบ markdown symbols
-        .replace(/<[^>]*>/g, '')           // ลบ HTML tags
-        // ลบ Emoji ทั้งหมด
-        .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')  // Emoji symbols
-        .replace(/[\u{2600}-\u{26FF}]/gu, '')    // Misc symbols
-        .replace(/[\u{2700}-\u{27BF}]/gu, '')    // Dingbats
-        .replace(/[\u{1F600}-\u{1F64F}]/gu, '')  // Emoticons
-        .replace(/[\u{1F680}-\u{1F6FF}]/gu, '')  // Transport
-        .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '')  // Flags
-        .replace(/[\u{FE00}-\u{FE0F}]/gu, '')    // Variation selectors
-        .replace(/[\u{200D}]/gu, '')             // Zero width joiner
-        // ลบเครื่องหมายพิเศษที่ไม่ต้องการอ่าน
-        .replace(/[→←↑↓↔↕⇄⇆►▶◀■□●○★☆✓✗✔✘❌⭐💡📚📖🎯🎤🔊]/g, '')
-        .replace(/[!]{2,}/g, '!')              // ลด !! เหลือ !
-        .replace(/[?]{2,}/g, '?')              // ลด ?? เหลือ ?
-        .replace(/\.{3,}/g, '...')             // ลด ... 
-        .replace(/\s{2,}/g, ' ')               // ลดช่องว่างซ้ำ
-        .replace(/\n+/g, '. ')                 // แปลง newline เป็น .
-        .trim();
-    
+    var clean = cleanTextForSpeech(text);
     if (!clean || clean.length < 2) return;
     
-    // Split by language
-    const segments = splitByLanguage(clean);
+    var segments = splitByLanguage(clean);
     speechQueue = segments;
-    isSpeaking = true;
+    speaking = true;
     updateSpeaker();
-    speakNextSegment();
+    speakNext();
 }
 
 function splitByLanguage(text) {
-    const segments = [];
-    // More precise regex for Thai and English
-    const regex = /([A-Za-z0-9][A-Za-z0-9\s.,!?'"\-()]*[A-Za-z0-9.,!?'"\-()])|([ก-๙][ก-๙\s.,!?'"\-()]*)/g;
-    let match;
-    let lastIndex = 0;
+    var result = [];
+    var current = '';
+    var currentLang = 'th-TH';
     
-    while ((match = regex.exec(text)) !== null) {
-        // Add any skipped characters
-        if (match.index > lastIndex) {
-            const skipped = text.substring(lastIndex, match.index).trim();
-            if (skipped) {
-                segments.push({text: skipped, lang: 'th-TH'});
-            }
+    for (var i = 0; i < text.length; i++) {
+        var char = text[i];
+        var code = char.charCodeAt(0);
+        var isThai = (code >= 0x0E00 && code <= 0x0E7F);
+        var isEng = (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+        
+        var newLang = currentLang;
+        if (isThai) newLang = 'th-TH';
+        else if (isEng) newLang = 'en-US';
+        
+        if (newLang !== currentLang && current.trim()) {
+            result.push({text: current.trim(), lang: currentLang});
+            current = '';
         }
         
-        if (match[1]) {
-            segments.push({text: match[1].trim(), lang: 'en-US'});
-        } else if (match[2]) {
-            segments.push({text: match[2].trim(), lang: 'th-TH'});
-        }
-        lastIndex = regex.lastIndex;
+        current += char;
+        if (isThai || isEng) currentLang = newLang;
     }
     
-    // Add remaining text
-    if (lastIndex < text.length) {
-        const remaining = text.substring(lastIndex).trim();
-        if (remaining) {
-            segments.push({text: remaining, lang: 'th-TH'});
-        }
+    if (current.trim()) {
+        result.push({text: current.trim(), lang: currentLang});
     }
     
-    // Merge consecutive segments of same language
-    const merged = [];
-    for (const seg of segments) {
-        if (merged.length > 0 && merged[merged.length - 1].lang === seg.lang) {
-            merged[merged.length - 1].text += ' ' + seg.text;
-        } else {
-            merged.push({...seg});
-        }
-    }
-    
-    return merged.length > 0 ? merged : [{text: text, lang: 'th-TH'}];
+    return result.length > 0 ? result : [{text: text, lang: 'th-TH'}];
 }
 
-function speakNextSegment() {
+function speakNext() {
     if (speechQueue.length === 0) {
-        isSpeaking = false;
         speaking = false;
         updateSpeaker();
         return;
     }
     
-    const segment = speechQueue.shift();
-    const utterance = new SpeechSynthesisUtterance(segment.text);
+    var segment = speechQueue.shift();
+    var utterance = new SpeechSynthesisUtterance(segment.text);
     utterance.lang = segment.lang;
-    
-    // Adjust rate based on language
-    utterance.rate = segment.lang === 'th-TH' ? 0.85 : 0.9;
+    utterance.rate = 0.7;
     utterance.pitch = 1.0;
-    utterance.volume = 1.0;
     
-    // Try to find a good voice
-    const voices = speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v => 
-        v.lang.startsWith(segment.lang.split('-')[0]) && 
-        (v.name.includes('Google') || v.name.includes('Microsoft') || v.localService)
-    );
-    if (preferredVoice) utterance.voice = preferredVoice;
-    
-    currentUtterance = utterance;
-    speaking = true;
-    updateSpeaker();
-    
-    utterance.onend = () => {
-        speakNextSegment();
-    };
-    
-    utterance.onerror = (e) => {
-        console.log('Speech error:', e);
-        speakNextSegment();
-    };
+    utterance.onend = speakNext;
+    utterance.onerror = speakNext;
     
     speechSynthesis.speak(utterance);
 }
@@ -661,26 +601,19 @@ function stopSpeech() {
         speechSynthesis.cancel();
     }
     speechQueue = [];
-    isSpeaking = false;
     speaking = false;
-    currentUtterance = null;
     updateSpeaker();
 }
 
 function toggleSpeak() {
-    if (!window.speechSynthesis) return;
-    
-    if (speaking || isSpeaking) {
+    if (speaking) {
         stopSpeech();
     }
 }
 
 function updateSpeaker() {
-    const btn = document.getElementById('speaker');
-    btn.disabled = false;
-    btn.style.opacity = '1';
-    
-    if (speaking || isSpeaking) {
+    var btn = document.getElementById('speaker');
+    if (speaking) {
         btn.textContent = '⏹️';
         btn.classList.add('playing');
     } else {
@@ -690,41 +623,42 @@ function updateSpeaker() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 🎨 UI Functions
+// UI Functions
 // ═══════════════════════════════════════════════════════════════════════════
 function updateUI() {
-    const t = TEXT[lang];
+    var t = TEXT[lang];
     document.getElementById('title').textContent = t.title;
     document.getElementById('desc').textContent = t.desc;
     document.getElementById('inp').placeholder = t.placeholder;
     document.getElementById('sendBtn').textContent = t.send;
     
-    const q = document.getElementById('quick');
+    var q = document.getElementById('quick');
     q.innerHTML = '';
-    t.quick.forEach(function(txt) {
-        const b = document.createElement('button');
+    for (var i = 0; i < t.quick.length; i++) {
+        var txt = t.quick[i];
+        var b = document.createElement('button');
         b.textContent = txt;
-        b.onclick = function() {
-            document.getElementById('inp').value = txt;
-            send();
-        };
+        b.onclick = (function(text) {
+            return function() {
+                document.getElementById('inp').value = text;
+                send();
+            };
+        })(txt);
         q.appendChild(b);
-    });
+    }
 }
 
 function setLang(l) {
     if (lang === l) return;
     lang = l;
-    history = []; // Clear history when switching modes
+    chatHistory = [];
     
     document.getElementById('btnTrans').className = l === 'translate' ? 'on' : '';
     document.getElementById('btnThai').className = l === 'th' ? 'on' : '';
     
     stopSpeech();
     updateUI();
-    updateSpeaker();
     
-    // Clear chat and show welcome
     document.getElementById('chat').innerHTML = '';
     addMsg('sam', TEXT[lang].welcome);
     
@@ -732,23 +666,25 @@ function setLang(l) {
 }
 
 function addMsg(type, text) {
-    const chat = document.getElementById('chat');
-    const div = document.createElement('div');
+    var chat = document.getElementById('chat');
+    var div = document.createElement('div');
     div.className = 'msg ' + type;
     
-    const icon = type === 'sam' ? '🤖 ' : type === 'user' ? '👤 ' : type === 'info' ? 'ℹ️ ' : '⚠️ ';
-    const formatted = text
-        .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
-        .replace(/\n/g, '<br>');
+    var icon = '';
+    if (type === 'sam') icon = '🤖 ';
+    else if (type === 'user') icon = '👤 ';
+    else if (type === 'info') icon = 'ℹ️ ';
+    else icon = '⚠️ ';
     
+    var formatted = text.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
     div.innerHTML = '<div class="bubble">' + icon + formatted + '</div>';
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
 }
 
 function showTyping() {
-    const chat = document.getElementById('chat');
-    const div = document.createElement('div');
+    var chat = document.getElementById('chat');
+    var div = document.createElement('div');
     div.className = 'msg sam';
     div.id = 'typing';
     div.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
@@ -757,7 +693,7 @@ function showTyping() {
 }
 
 function hideTyping() {
-    const t = document.getElementById('typing');
+    var t = document.getElementById('typing');
     if (t) t.remove();
 }
 
