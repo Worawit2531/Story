@@ -1,790 +1,391 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sam AI - เพื่อนคุยภาษาอังกฤษ</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Kanit', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            min-height: 100vh;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .app {
-            width: 100%;
-            max-width: 950px;
-            height: 92vh;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 30px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 25px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
-        .avatar {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #ffd89b, #19547b);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-            border: 4px solid white;
-        }
-        .info { flex: 1; }
-        .info h1 { font-size: 28px; font-weight: 700; margin-bottom: 5px; }
-        .info p { font-size: 14px; opacity: 0.95; }
-        .status {
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.25);
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        .status.ok { background: linear-gradient(135deg, #10b981, #34d399); }
-        .status.err { background: linear-gradient(135deg, #ef4444, #f87171); }
-        .status.testing { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
-        .chat {
-            flex: 1;
-            overflow-y: auto;
-            padding: 25px;
-            background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
-        }
-        .msg { margin-bottom: 18px; display: flex; }
-        .msg.user { justify-content: flex-end; }
-        .bubble {
-            max-width: 75%;
-            padding: 14px 18px;
-            border-radius: 20px;
-            line-height: 1.6;
-            word-wrap: break-word;
-        }
-        .msg.sam .bubble { background: white; color: #1e293b; border: 2px solid #e0e7ff; }
-        .msg.user .bubble { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-        .msg.err .bubble { background: #fee2e2; border: 2px solid #fca5a5; color: #991b1b; }
-        .msg.info .bubble { background: #dbeafe; border: 2px solid #93c5fd; color: #1e40af; font-size: 13px; }
-        .msg.debug .bubble { background: #fef3c7; border: 2px solid #fbbf24; color: #92400e; font-size: 11px; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
-        .typing {
-            padding: 12px 18px;
-            background: white;
-            border-radius: 20px;
-            display: inline-block;
-        }
-        .input {
-            padding: 20px;
-            background: white;
-            border-top: 2px solid #e2e8f0;
-        }
-        .lang { display: flex; gap: 12px; margin-bottom: 12px; }
-        .lang button {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #e0e7ff;
-            background: white;
-            color: #667eea;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .lang button.on {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border-color: transparent;
-        }
-        .row { display: flex; gap: 12px; align-items: center; }
-        .mic, .speaker {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            border: none;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            font-size: 26px;
-            cursor: pointer;
-        }
-        .mic:disabled, .speaker:disabled { opacity: 0.4; cursor: not-allowed; background: #cbd5e1; }
-        .mic.on { background: linear-gradient(135deg, #f093fb, #f5576c); }
-        .speaker.playing { background: linear-gradient(135deg, #10b981, #34d399); }
-        input[type="text"] {
-            flex: 1;
-            padding: 14px 18px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 15px;
-            font-family: 'Kanit', sans-serif;
-            outline: none;
-        }
-        input[type="text"]:focus { border-color: #667eea; }
-        .send {
-            padding: 14px 30px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .send:disabled { opacity: 0.5; }
-        .quick { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-        .quick button {
-            padding: 8px 16px;
-            background: #f1f5f9;
-            border: 2px solid #e2e8f0;
-            border-radius: 20px;
-            font-size: 13px;
-            cursor: pointer;
-            color: #475569;
-        }
-        .quick button:hover { background: #667eea; color: white; border-color: transparent; }
-        .debug-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background: #1e293b;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 12px;
-            z-index: 1000;
-        }
-        @media (max-width: 480px) {
-            .app { height: 98vh; border-radius: 20px; }
-            .header { padding: 16px; gap: 12px; }
-            .avatar { width: 50px; height: 50px; font-size: 28px; }
-            .info h1 { font-size: 20px; }
-            .bubble { max-width: 85%; font-size: 14px; }
-            .mic, .speaker { width: 48px; height: 48px; font-size: 22px; }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Story Tailor v7.9.0 - Secure Edition</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px 0;
+    }
+    .main-card {
+      border-radius: 20px;
+      border: none;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      background: white;
+      overflow: hidden;
+    }
+    .card-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .api-management {
+      background: #f1f3f5;
+      padding: 10px 20px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .story-display {
+      line-height: 2.4;
+      font-size: 1.25rem;
+      color: #333;
+      padding: 30px;
+      background: #ffffff;
+      border-radius: 15px;
+      margin-top: 20px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+    }
+    .word-clickable {
+      cursor: pointer;
+      border-bottom: 2px dotted #667eea;
+      transition: all 0.2s;
+      padding: 2px 0;
+    }
+    .word-clickable:hover {
+      background-color: rgba(102, 126, 234, 0.15);
+      color: #667eea;
+      border-radius: 4px;
+    }
+    .tooltip-box {
+      position: absolute;
+      background: #1e293b;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 10px;
+      display: none;
+      pointer-events: none;
+      z-index: 10000;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      max-width: 250px;
+    }
+    .btn-generate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 15px;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+    .btn-generate:hover:not(:disabled) { 
+      transform: translateY(-2px); 
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); 
+      color: white;
+    }
+    .btn-generate:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    #loading { display: none; }
+    .status-badge { 
+      font-size: 0.75rem; 
+      padding: 4px 12px; 
+      border-radius: 20px; 
+      background: #d4edda; 
+      color: #155724; 
+    }
+    .status-badge.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .setup-alert {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+      border: none;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .setup-alert h5 {
+      color: #856404;
+      margin-bottom: 15px;
+    }
+    .help-text {
+      font-size: 0.85rem;
+      color: #6c757d;
+      margin-top: 8px;
+    }
+    .speaking {
+      animation: pulse 0.5s ease-in-out;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); background-color: rgba(102, 126, 234, 0.3); }
+    }
+  </style>
 </head>
 <body>
-    <button class="debug-toggle" onclick="toggleDebug()">Debug: OFF</button>
-    
-    <div class="app">
-        <div class="header">
-            <div class="avatar">🤖</div>
-            <div class="info">
-                <h1 id="appTitle">แซม AI</h1>
-                <p id="appDesc">เพื่อนคุยภาษาอังกฤษ</p>
-            </div>
-            <div class="status testing" id="stat" onclick="retestAPIs()">Testing...</div>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="card main-card">
+        <div class="card-header">
+          <h2>✨ AI Story Tailor v7.9.0</h2>
+          <p class="mb-0 opacity-75">Secure Edition - ระบบปลอดภัย ไม่หลุด API Key</p>
         </div>
-        <div class="chat" id="chat"></div>
-        <div class="input">
-            <div class="lang">
-                <button class="on" id="ben" onclick="changeLang('translate')">🌐 แปลภาษา</button>
-                <button id="bth" onclick="changeLang('th')">🇹🇭 คุยเป็นไทย</button>
-            </div>
-            <div class="row">
-                <button class="mic" id="mic" onclick="toggleMic()">🎤</button>
-                <button class="speaker" id="speaker" onclick="toggleSpeech()">🔊</button>
-                <input type="text" id="inp" placeholder="พิมพ์ข้อความ..." onkeydown="if(event.key==='Enter')sendMessage()">
-                <button class="send" id="btn" onclick="sendMessage()">Send</button>
-            </div>
-            <div class="quick" id="quickBtns"></div>
-        </div>
-    </div>
-
-    <script>
-        // ╔════════════════════════════════════════════════════════════════╗
-        // ║              🔑 API KEYS - เพิ่ม/ลบ ได้ที่นี่                    ║
-        // ╚════════════════════════════════════════════════════════════════╝
-
-        const GROQ_API_KEYS = [
-            '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',
-            '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',
-            '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',
-        ];
-
-        const GEMINI_API_KEYS = [
-            'AIzaSyAaeRUMdx-nVB36cQtIwD5-viXXQgYbOh4',
-        ];
-
-        const GROQ_MODELS = ['llama-3.3-70b-versatile', 'mixtral-8x7b-32768'];
-        const GEMINI_MODELS = ['gemini-1.5-flash', 'gemini-2.0-flash-exp'];
-
-        // ════════════════════════════════════════════════════════════════
         
-        let DEBUG_MODE = false;
-        let L = 'translate';
-        let H = [];
-        let R = null;
-        let IS = false;
-        let OK = false;
-        let CURRENT_API = null;
-        let currentGroqIdx = 0;
-        let currentGeminiIdx = 0;
-        let failedGroq = new Set();
-        let failedGemini = new Set();
-        let SPEAKING = false;
+        <div class="api-management">
+          <div>
+            <span id="statusBadge" class="status-badge">● กำลังตรวจสอบระบบ...</span>
+          </div>
+          <button class="btn btn-outline-secondary btn-sm" onclick="showSetup()">⚙️ ตั้งค่า</button>
+        </div>
 
-        // ════════════════════════════════════════════════════════════════
-        // 🗣️ SYSTEM PROMPTS - บุคลิกของแซม
-        // ════════════════════════════════════════════════════════════════
+        <div class="card-body p-4">
+          
+          <!-- Setup Section -->
+          <div id="setupSection" class="setup-alert" style="display:none;">
+            <h5>🔧 ตั้งค่าระบบ (ครั้งแรกเท่านั้น)</h5>
+            <div class="mb-3">
+              <label class="form-label">Google Apps Script URL:</label>
+              <input type="text" id="apiUrl" class="form-control" placeholder="https://script.google.com/macros/s/xxx/exec">
+              <div class="help-text">วาง URL ที่ได้จากการ Deploy Google Apps Script</div>
+            </div>
+            <button onclick="saveSetup()" class="btn btn-warning">💾 บันทึกการตั้งค่า</button>
+            <button onclick="hideSetup()" class="btn btn-outline-secondary ms-2">ยกเลิก</button>
+          </div>
 
-        const TRANSLATE_PROMPT = `You are Sam (แซม), a friendly and natural translator.
+          <div class="mb-4">
+            <label class="form-label fw-bold">📝 ใส่หัวข้อเรื่องที่อยากเรียนรู้:</label>
+            <input type="text" id="topic" class="form-control form-control-lg shadow-sm" 
+                   placeholder="เช่น สัตว์ป่าในแอฟริกา, การไปเที่ยวทะเล, แมวกล้าหาญสำรวจป่า...">
+          </div>
+          
+          <button onclick="generate()" id="genBtn" class="btn btn-generate w-100 shadow">
+            🚀 สร้างบทเรียนภาษาอังกฤษ
+          </button>
 
-TASK:
-- Detect if the input is Thai or English
-- Translate to the other language
-- Keep the same tone and feeling
+          <div id="loading" class="text-center my-5">
+            <div class="spinner-border text-primary" style="width: 3.5rem; height: 3.5rem;"></div>
+            <p class="mt-3 fw-bold text-secondary">AI กำลังสร้างเรื่องราว...</p>
+          </div>
 
-RULES:
-- Give ONLY the translation, nothing else
-- Use natural everyday language
-- If greeting, translate warmly
-- Keep casual language casual
-- Keep formal language respectful
+          <div id="errorMsg" class="alert alert-danger mt-3" style="display:none;"></div>
 
-Example:
-Input: สวัสดีครับ วันนี้อากาศดีจัง
-Output: Hi! The weather is so nice today.
+          <div id="storyOut" class="story-display mt-4 shadow-sm" style="display:none;"></div>
+          
+          <!-- คำแนะนำการใช้งาน -->
+          <div id="instructions" class="mt-4 p-3 bg-light rounded">
+            <h6 class="text-muted">💡 วิธีใช้งาน:</h6>
+            <ul class="text-muted small mb-0">
+              <li><strong>ชี้คำศัพท์</strong> - ดูคำแปลภาษาไทย</li>
+              <li><strong>คลิกคำศัพท์</strong> - ฟังเสียงอ่านออกเสียง</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-center mt-3 text-white-50 small">
+        พัฒนาสำหรับห้องเรียนภาษาอังกฤษ | Secure API System
+      </div>
+    </div>
+  </div>
+</div>
 
-Input: I'm feeling a bit tired
-Output: รู้สึกเหนื่อยๆ นิดหน่อย`;
+<div id="tbox" class="tooltip-box"></div>
 
-        const THAI_CHAT_PROMPT = `คุณคือ "แซม" เพื่อนสนิทที่ช่วยสอนภาษาอังกฤษ คุณเป็นคนไทยที่เก่งภาษาอังกฤษมาก
+<script>
+  const STORAGE_KEY = 'storyTailorApiUrl';
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    checkApiStatus();
+    document.getElementById('topic').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') generate();
+    });
+  });
 
-🎭 บุคลิกของคุณ:
-- พูดจาเป็นกันเอง เหมือนเพื่อนคุยกัน ไม่เป็นทางการ
-- ใช้คำพูดธรรมชาติ เช่น "เออ" "อ่า" "จริงป่ะ" "เจ๋งเลย" "โอเค"
-- มีอารมณ์ขัน ชอบแซว แต่ไม่เกินไป
-- เข้าอกเข้าใจ ให้กำลังใจเมื่อเพื่อนท้อ
-- ตอบสั้นๆ กระชับ ไม่ยืดยาว (2-4 ประโยคพอ)
-- ใช้ emoji แค่ 1-2 ตัวต่อข้อความ ไม่ต้องเยอะ
+  function getApiUrl() {
+    return localStorage.getItem(STORAGE_KEY) || '';
+  }
 
-💬 วิธีพูด:
-- แทนตัวเองว่า "เรา" หรือ "แซม"
-- เรียกคู่สนทนาว่า "เธอ" หรือ "นาย" (ถ้าผู้ชาย) หรือ "แก" แบบเพื่อน
-- ใช้ภาษาพูด ไม่ใช่ภาษาเขียน
-- ห้ามใช้คำว่า "ค่ะ" "ครับ" เพราะเราเป็นเพื่อนกัน
-- ห้ามพูดยาวเกิน 4 บรรทัด
+  function showSetup() {
+    document.getElementById('setupSection').style.display = 'block';
+    document.getElementById('apiUrl').value = getApiUrl();
+  }
 
-📚 เวลาสอนภาษาอังกฤษ:
-- อธิบายง่ายๆ ยกตัวอย่างจากชีวิตจริง
-- ถ้าเพื่อนพูดผิด บอกแบบนุ่มนวล เช่น "เออ ลองพูดว่า... ดีกว่านะ"
-- ให้ตัวอย่างประโยคที่ใช้ได้จริง
-- สอนแบบสนุก ไม่น่าเบื่อ
+  function hideSetup() {
+    document.getElementById('setupSection').style.display = 'none';
+  }
 
-❌ ห้ามทำ:
-- ห้ามพูดเป็นทางการ
-- ห้ามใช้ bullet points หรือหัวข้อ
-- ห้ามตอบยาวเกิน 4 บรรทัด
-- ห้ามใช้ emoji เกิน 2 ตัว
-- ห้ามพูดเหมือน AI หรือหุ่นยนต์
+  function saveSetup() {
+    const url = document.getElementById('apiUrl').value.trim();
+    if (!url) {
+      alert('กรุณาใส่ URL ของ Google Apps Script');
+      return;
+    }
+    if (!url.startsWith('https://script.google.com/')) {
+      alert('URL ไม่ถูกต้อง ต้องเป็น https://script.google.com/...');
+      return;
+    }
+    localStorage.setItem(STORAGE_KEY, url);
+    hideSetup();
+    checkApiStatus();
+    alert('บันทึกการตั้งค่าเรียบร้อย!');
+  }
 
-ตัวอย่างการตอบที่ดี:
-- "เออ Past Tense ก็คือพูดเรื่องที่เกิดขึ้นไปแล้วน่ะ เช่น I went to school เมื่อวาน อะไรแบบนี้ ง่ายๆ เลย 😊"
-- "อ่า คำนี้ออกเสียงว่า... นะ ลองพูดตามดู"
-- "เจ๋งเลย พูดถูกแล้ว! เก่งมาก 👍"
-- "ไม่ยากหรอก เดี๋ยวเราอธิบายให้ฟังนะ"`;
+  async function checkApiStatus() {
+    const badge = document.getElementById('statusBadge');
+    const url = getApiUrl();
+    
+    if (!url) {
+      badge.textContent = '⚠️ ยังไม่ได้ตั้งค่า';
+      badge.className = 'status-badge error';
+      showSetup();
+      return;
+    }
 
-        // ════════════════════════════════════════════════════════════════
+    badge.textContent = '● กำลังตรวจสอบ...';
+    
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.status === 'ok') {
+        badge.textContent = `● ระบบพร้อมใช้งาน (${data.version || 'OK'})`;
+        badge.className = 'status-badge';
+      } else {
+        throw new Error('Invalid response');
+      }
+    } catch (err) {
+      badge.textContent = '⚠️ เชื่อมต่อไม่ได้';
+      badge.className = 'status-badge error';
+    }
+  }
 
-        function toggleDebug() {
-            DEBUG_MODE = !DEBUG_MODE;
-            document.querySelector('.debug-toggle').textContent = 'Debug: ' + (DEBUG_MODE ? 'ON' : 'OFF');
-            if (DEBUG_MODE) {
-                showDebug('Debug mode enabled');
-            }
+  // ===== ใช้ GET แทน POST เพื่อแก้ปัญหา CORS =====
+  async function generate() {
+    const topic = document.getElementById('topic').value.trim();
+    if (!topic) {
+      alert('กรุณาระบุหัวข้อเรื่อง');
+      return;
+    }
+
+    const apiUrl = getApiUrl();
+    if (!apiUrl) {
+      alert('กรุณาตั้งค่า API URL ก่อน');
+      showSetup();
+      return;
+    }
+
+    const btn = document.getElementById('genBtn');
+    const load = document.getElementById('loading');
+    const out = document.getElementById('storyOut');
+    const errMsg = document.getElementById('errorMsg');
+
+    btn.disabled = true;
+    load.style.display = 'block';
+    out.style.display = 'none';
+    errMsg.style.display = 'none';
+
+    try {
+      // ใช้ GET request พร้อม parameter
+      const fullUrl = apiUrl + '?topic=' + encodeURIComponent(topic);
+      const res = await fetch(fullUrl);
+      const data = await res.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      if (!data.story) {
+        throw new Error('ไม่ได้รับเรื่องราวจากระบบ');
+      }
+
+      renderStory(data.story);
+      out.style.display = 'block';
+      out.scrollIntoView({ behavior: 'smooth' });
+
+    } catch (err) {
+      console.error('Generation error:', err);
+      errMsg.textContent = '❌ ' + (err.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+      errMsg.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      load.style.display = 'none';
+    }
+  }
+
+  function renderStory(txt) {
+    const out = document.getElementById('storyOut');
+    out.innerHTML = '';
+    
+    const paragraphs = txt.split(/\n\n+/);
+    
+    paragraphs.forEach(pTxt => {
+      if (!pTxt.trim()) return;
+      
+      const p = document.createElement('p');
+      p.style.marginBottom = '1.5rem';
+      
+      const tokens = pTxt.split(/(\s+)/);
+      
+      tokens.forEach(token => {
+        if (/[a-zA-Z]/.test(token)) {
+          const span = document.createElement('span');
+          span.className = 'word-clickable';
+          span.textContent = token;
+          span.addEventListener('mouseover', (e) => showTranslation(e, token));
+          span.addEventListener('mouseout', hideTooltip);
+          span.addEventListener('click', () => speakWord(token, span));
+          p.appendChild(span);
+        } else {
+          p.appendChild(document.createTextNode(token));
         }
+      });
+      
+      out.appendChild(p);
+    });
+  }
 
-        function showDebug(msg) {
-            if (!DEBUG_MODE) return;
-            const chat = document.getElementById('chat');
-            const div = document.createElement('div');
-            div.className = 'msg debug';
-            div.innerHTML = '<div class="bubble">🔧 ' + msg + '</div>';
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
-        }
+  async function showTranslation(e, word) {
+    const cleanWord = word.replace(/[.,!?;:"'()]/g, '').toLowerCase();
+    const tb = document.getElementById('tbox');
+    
+    const rect = e.target.getBoundingClientRect();
+    tb.style.left = (window.scrollX + rect.left) + 'px';
+    tb.style.top = (window.scrollY + rect.bottom + 8) + 'px';
+    tb.style.display = 'block';
+    tb.innerHTML = '<span style="opacity:0.7">กำลังแปล...</span>';
 
-        function showMessage(type, text) {
-            const chat = document.getElementById('chat');
-            const div = document.createElement('div');
-            div.className = 'msg ' + type;
-            const prefix = type === 'sam' ? '🤖 ' : type === 'user' ? '👤 ' : type === 'info' ? 'ℹ️ ' : '⚠️ ';
-            const formatted = text.replace(/\n/g, '<br>').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
-            div.innerHTML = '<div class="bubble">' + prefix + formatted + '</div>';
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
-        }
+    try {
+      const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=th&dt=t&q=${encodeURIComponent(cleanWord)}`);
+      const d = await r.json();
+      const translation = d[0][0][0];
+      
+      tb.innerHTML = `
+        <div><strong style="font-size:1.1em">${cleanWord}</strong></div>
+        <div style="color:#fbbf24; margin-top:4px">🇹🇭 ${translation}</div>
+        <div style="font-size:0.75em; opacity:0.6; margin-top:4px">คลิกเพื่อฟังเสียง</div>
+      `;
+    } catch (err) {
+      tb.innerHTML = `<strong>${cleanWord}</strong><br><span style="opacity:0.6">ไม่สามารถแปลได้</span>`;
+    }
+  }
 
-        function updateStatus(type, text) {
-            const stat = document.getElementById('stat');
-            stat.className = 'status ' + type;
-            stat.textContent = text;
-        }
+  function hideTooltip() {
+    document.getElementById('tbox').style.display = 'none';
+  }
 
-        async function testAPIs() {
-            updateStatus('testing', 'Testing APIs...');
-            showDebug('เริ่มทดสอบ APIs...');
-            showDebug('Groq keys: ' + GROQ_API_KEYS.length + ', Gemini keys: ' + GEMINI_API_KEYS.length);
-            
-            // Test Groq
-            for (let i = 0; i < GROQ_API_KEYS.length; i++) {
-                currentGroqIdx = i;
-                const key = GROQ_API_KEYS[i];
-                showDebug('Testing Groq #' + (i+1) + ': ' + key.substring(0, 20) + '...');
-                
-                try {
-                    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + key
-                        },
-                        body: JSON.stringify({
-                            model: GROQ_MODELS[0],
-                            messages: [{ role: 'user', content: 'hi' }],
-                            max_tokens: 5
-                        })
-                    });
-                    
-                    showDebug('Groq #' + (i+1) + ' response: ' + res.status);
-                    
-                    if (res.ok) {
-                        CURRENT_API = 'groq';
-                        OK = true;
-                        updateStatus('ok', 'Groq #' + (i+1) + '/' + GROQ_API_KEYS.length);
-                        showMessage('sam', 'ว่าไง! เราแซมเอง พร้อมช่วยแปลภาษาและสอนภาษาอังกฤษแล้วนะ ถามอะไรมาได้เลย 😊');
-                        showMessage('info', 'ใช้ Groq API Key #' + (i+1));
-                        updateQuickBtns();
-                        return;
-                    } else {
-                        const errText = await res.text();
-                        showDebug('Groq #' + (i+1) + ' error: ' + errText.substring(0, 200));
-                        failedGroq.add(i);
-                    }
-                } catch (e) {
-                    showDebug('Groq #' + (i+1) + ' exception: ' + e.message);
-                    failedGroq.add(i);
-                }
-            }
-            
-            // Test Gemini
-            for (let i = 0; i < GEMINI_API_KEYS.length; i++) {
-                currentGeminiIdx = i;
-                const key = GEMINI_API_KEYS[i];
-                showDebug('Testing Gemini #' + (i+1) + ': ' + key.substring(0, 15) + '...');
-                
-                for (let model of GEMINI_MODELS) {
-                    try {
-                        const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + key;
-                        const res = await fetch(url, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                contents: [{ parts: [{ text: 'hi' }] }]
-                            })
-                        });
-                        
-                        showDebug('Gemini #' + (i+1) + ' (' + model + ') response: ' + res.status);
-                        
-                        if (res.ok) {
-                            CURRENT_API = 'gemini';
-                            OK = true;
-                            updateStatus('ok', 'Gemini #' + (i+1));
-                            showMessage('sam', 'ว่าไง! เราแซมเอง พร้อมช่วยแปลภาษาและสอนภาษาอังกฤษแล้วนะ ถามอะไรมาได้เลย 😊');
-                            showMessage('info', 'ใช้ Gemini API Key #' + (i+1));
-                            updateQuickBtns();
-                            return;
-                        } else {
-                            const errText = await res.text();
-                            showDebug('Gemini error: ' + errText.substring(0, 200));
-                        }
-                    } catch (e) {
-                        showDebug('Gemini exception: ' + e.message);
-                    }
-                }
-                failedGemini.add(i);
-            }
-            
-            // All failed
-            OK = false;
-            updateStatus('err', 'All APIs Failed');
-            showMessage('err', 'ไม่สามารถเชื่อมต่อ API ได้\n\nสาเหตุที่เป็นไปได้:\n- API Keys หมดโควต้า\n- API Keys ถูกระงับ\n- ปัญหาการเชื่อมต่อ\n\nกด Debug: ON เพื่อดูรายละเอียด');
-        }
-
-        function retestAPIs() {
-            document.getElementById('chat').innerHTML = '';
-            failedGroq.clear();
-            failedGemini.clear();
-            testAPIs();
-        }
-
-        async function sendMessage() {
-            if (!OK) {
-                showMessage('err', 'API ยังไม่พร้อม กดที่ Status เพื่อทดสอบใหม่');
-                return;
-            }
-            
-            const inp = document.getElementById('inp');
-            const text = inp.value.trim();
-            if (!text) return;
-            
-            showMessage('user', text);
-            inp.value = '';
-            setDisabled(true);
-            
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'msg sam';
-            typingDiv.id = 'typing';
-            typingDiv.innerHTML = '<div class="typing">กำลังพิมพ์...</div>';
-            document.getElementById('chat').appendChild(typingDiv);
-            
-            try {
-                H.push({ r: 'user', t: text });
-                showDebug('Sending to ' + CURRENT_API + '...');
-                
-                let answer;
-                if (CURRENT_API === 'groq') {
-                    answer = await callGroq(text);
-                } else {
-                    answer = await callGemini(text);
-                }
-                
-                document.getElementById('typing')?.remove();
-                showMessage('sam', answer);
-                H.push({ r: 'model', t: answer });
-                
-                // พูดอัตโนมัติ
-                speakText(answer);
-                
-            } catch (e) {
-                document.getElementById('typing')?.remove();
-                showDebug('Error: ' + e.message);
-                showMessage('err', 'เกิดข้อผิดพลาด: ' + e.message);
-            }
-            
-            setDisabled(false);
-            inp.focus();
-        }
-
-        async function callGroq(msg) {
-            const key = GROQ_API_KEYS[currentGroqIdx];
-            const systemPrompt = L === 'translate' ? TRANSLATE_PROMPT : THAI_CHAT_PROMPT;
-            
-            const messages = [{ role: 'system', content: systemPrompt }];
-            for (let h of H.slice(-6)) {
-                messages.push({ role: h.r === 'user' ? 'user' : 'assistant', content: h.t });
-            }
-            
-            showDebug('Groq request to key #' + (currentGroqIdx + 1));
-            
-            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + key
-                },
-                body: JSON.stringify({
-                    model: GROQ_MODELS[0],
-                    messages: messages,
-                    temperature: 0.8,
-                    max_tokens: 512
-                })
-            });
-            
-            showDebug('Groq response: ' + res.status);
-            
-            if (!res.ok) {
-                const errText = await res.text();
-                showDebug('Groq error body: ' + errText.substring(0, 300));
-                
-                // Try next key
-                failedGroq.add(currentGroqIdx);
-                currentGroqIdx = (currentGroqIdx + 1) % GROQ_API_KEYS.length;
-                
-                if (failedGroq.size < GROQ_API_KEYS.length) {
-                    showMessage('info', 'สลับไป Groq Key #' + (currentGroqIdx + 1));
-                    updateStatus('ok', 'Groq #' + (currentGroqIdx + 1));
-                    return await callGroq(msg);
-                }
-                
-                throw new Error('Groq: ' + res.status);
-            }
-            
-            const data = await res.json();
-            return data.choices[0].message.content;
-        }
-
-        async function callGemini(msg) {
-            const key = GEMINI_API_KEYS[currentGeminiIdx];
-            const systemPrompt = L === 'translate' ? TRANSLATE_PROMPT : THAI_CHAT_PROMPT;
-            
-            const contents = [
-                { role: 'user', parts: [{ text: systemPrompt }] },
-                { role: 'model', parts: [{ text: 'โอเค เข้าใจแล้ว!' }] }
-            ];
-            for (let h of H.slice(-6)) {
-                contents.push({ role: h.r === 'user' ? 'user' : 'model', parts: [{ text: h.t }] });
-            }
-            
-            showDebug('Gemini request to key #' + (currentGeminiIdx + 1));
-            
-            const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODELS[0] + ':generateContent?key=' + key;
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: contents,
-                    generationConfig: { temperature: 0.8, maxOutputTokens: 512 }
-                })
-            });
-            
-            showDebug('Gemini response: ' + res.status);
-            
-            if (!res.ok) {
-                const errText = await res.text();
-                showDebug('Gemini error: ' + errText.substring(0, 300));
-                throw new Error('Gemini: ' + res.status);
-            }
-            
-            const data = await res.json();
-            return data.candidates[0].content.parts[0].text;
-        }
-
-        function changeLang(l) {
-            L = l;
-            document.getElementById('ben').className = l === 'translate' ? 'on' : '';
-            document.getElementById('bth').className = l === 'th' ? 'on' : '';
-            document.getElementById('appDesc').textContent = l === 'translate' ? 'แปลไทย-อังกฤษ' : 'เพื่อนคุยภาษาอังกฤษ';
-            updateQuickBtns();
-        }
-
-        function updateQuickBtns() {
-            const btns = L === 'translate' 
-                ? ['สวัสดีครับ', 'How are you?', 'ขอบคุณมาก', 'Nice to meet you']
-                : ['สอน Past Tense หน่อย', 'ฝึกสนทนาด้วย', 'แนะนำคำศัพท์', 'แก้ประโยคให้หน่อย'];
-            
-            const container = document.getElementById('quickBtns');
-            container.innerHTML = '';
-            btns.forEach(text => {
-                const btn = document.createElement('button');
-                btn.textContent = text;
-                btn.onclick = () => {
-                    document.getElementById('inp').value = text;
-                    sendMessage();
-                };
-                container.appendChild(btn);
-            });
-        }
-
-        function setDisabled(d) {
-            document.getElementById('inp').disabled = d;
-            document.getElementById('btn').disabled = d;
-            document.getElementById('mic').disabled = d;
-        }
-
-        function toggleMic() {
-            if (!R) {
-                if (window.SpeechRecognition || window.webkitSpeechRecognition) {
-                    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-                    R = new SR();
-                    R.lang = 'th-TH';
-                    R.onresult = (e) => {
-                        document.getElementById('inp').value = e.results[0][0].transcript;
-                        sendMessage();
-                    };
-                    R.onend = () => {
-                        IS = false;
-                        document.getElementById('mic').className = 'mic';
-                    };
-                } else {
-                    showMessage('info', 'เบราว์เซอร์ไม่รองรับการพูด');
-                    return;
-                }
-            }
-            
-            if (IS) {
-                R.stop();
-            } else {
-                R.start();
-                IS = true;
-                document.getElementById('mic').className = 'mic on';
-            }
-        }
-
-        // ════════════════════════════════════════════════════════════════
-        // 🔊 TEXT-TO-SPEECH - ปรับปรุงการอ่านออกเสียง
-        // ════════════════════════════════════════════════════════════════
-
-        function cleanTextForSpeech(text) {
-            return text
-                // ลบ emoji
-                .replace(/[\u{1F600}-\u{1F64F}]/gu, '')
-                .replace(/[\u{1F300}-\u{1F5FF}]/gu, '')
-                .replace(/[\u{1F680}-\u{1F6FF}]/gu, '')
-                .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '')
-                .replace(/[\u{2600}-\u{26FF}]/gu, '')
-                .replace(/[\u{2700}-\u{27BF}]/gu, '')
-                // ลบเครื่องหมายพิเศษ
-                .replace(/[*#_`~\[\](){}|\\<>]/g, '')
-                // ลบ bullet points
-                .replace(/^[-•●◦▪▸►]\s*/gm, '')
-                // ลบหมายเลขหัวข้อ
-                .replace(/^\d+\.\s*/gm, '')
-                // แปลงขึ้นบรรทัดใหม่เป็นจุด
-                .replace(/\n+/g, '. ')
-                // ลบช่องว่างเกิน
-                .replace(/\s+/g, ' ')
-                // ลบจุดซ้ำ
-                .replace(/\.+/g, '.')
-                .replace(/\.\s*\./g, '.')
-                .trim();
-        }
-
-        function speakText(text) {
-            if (!window.speechSynthesis) return;
-            
-            // หยุดเสียงเดิม
-            speechSynthesis.cancel();
-            
-            // ทำความสะอาดข้อความ
-            const cleanText = cleanTextForSpeech(text);
-            if (!cleanText) return;
-            
-            showDebug('Speaking: ' + cleanText.substring(0, 50) + '...');
-            
-            // แยกข้อความตามภาษา
-            const segments = splitByLanguage(cleanText);
-            
-            SPEAKING = true;
-            document.getElementById('speaker').className = 'speaker playing';
-            
-            let currentIndex = 0;
-            
-            function speakNext() {
-                if (currentIndex >= segments.length || !SPEAKING) {
-                    SPEAKING = false;
-                    document.getElementById('speaker').className = 'speaker';
-                    return;
-                }
-                
-                const seg = segments[currentIndex];
-                const utterance = new SpeechSynthesisUtterance(seg.text);
-                utterance.lang = seg.lang;
-                
-                // ปรับความเร็วตามภาษา
-                if (seg.lang === 'th-TH') {
-                    utterance.rate = 0.75;  // ไทยพูดปกติ
-                    utterance.pitch = 1.0;
-                } else {
-                    utterance.rate = 0.85; // อังกฤษช้าลงนิด
-                    utterance.pitch = 1.0;
-                }
-                
-                utterance.volume = 1.0;
-                
-                utterance.onend = () => {
-                    currentIndex++;
-                    speakNext();
-                };
-                
-                utterance.onerror = () => {
-                    currentIndex++;
-                    speakNext();
-                };
-                
-                speechSynthesis.speak(utterance);
-            }
-            
-            speakNext();
-        }
-
-        function splitByLanguage(text) {
-            const segments = [];
-            // แยกตามภาษา - ไทย vs อังกฤษ
-            const regex = /([a-zA-Z][a-zA-Z0-9\s.,!?'"()-]*[a-zA-Z0-9.!?])|([ก-๙][ก-๙\s.,!?'"()-]*[ก-๙.!?]?)/g;
-            let match;
-            let lastIndex = 0;
-            
-            while ((match = regex.exec(text)) !== null) {
-                // เพิ่มส่วนที่ไม่ match (ถ้ามี)
-                if (match.index > lastIndex) {
-                    const between = text.substring(lastIndex, match.index).trim();
-                    if (between) {
-                        // ตรวจสอบว่าเป็นภาษาอะไร
-                        if (/[ก-๙]/.test(between)) {
-                            segments.push({ text: between, lang: 'th-TH' });
-                        } else if (/[a-zA-Z]/.test(between)) {
-                            segments.push({ text: between, lang: 'en-US' });
-                        }
-                    }
-                }
-                
-                if (match[1]) {
-                    // อังกฤษ
-                    segments.push({ text: match[1].trim(), lang: 'en-US' });
-                } else if (match[2]) {
-                    // ไทย
-                    segments.push({ text: match[2].trim(), lang: 'th-TH' });
-                }
-                lastIndex = regex.lastIndex;
-            }
-            
-            // เพิ่มส่วนที่เหลือ
-            if (lastIndex < text.length) {
-                const remaining = text.substring(lastIndex).trim();
-                if (remaining) {
-                    if (/[ก-๙]/.test(remaining)) {
-                        segments.push({ text: remaining, lang: 'th-TH' });
-                    } else {
-                        segments.push({ text: remaining, lang: 'en-US' });
-                    }
-                }
-            }
-            
-            // ถ้าไม่มี segment ให้ใช้ทั้งหมดเป็นไทย
-            if (segments.length === 0 && text.trim()) {
-                segments.push({ text: text.trim(), lang: 'th-TH' });
-            }
-            
-            // รวม segment ที่ภาษาเดียวกันติดกัน
-            const merged = [];
-            for (const seg of segments) {
-                if (merged.length > 0 && merged[merged.length - 1].lang === seg.lang) {
-                    merged[merged.length - 1].text += ' ' + seg.text;
-                } else {
-                    merged.push({ ...seg });
-                }
-            }
-            
-            return merged;
-        }
-
-        function toggleSpeech() {
-            if (SPEAKING) {
-                SPEAKING = false;
-                speechSynthesis.cancel();
-                document.getElementById('speaker').className = 'speaker';
-            }
-        }
-
-        // Start
-        window.onload = function() {
-            updateQuickBtns();
-            testAPIs();
-        };
-    </script>
+  function speakWord(word, element) {
+    const cleanWord = word.replace(/[.,!?;:"'()]/g, '');
+    element.classList.add('speaking');
+    setTimeout(() => element.classList.remove('speaking'), 500);
+    
+    const utterance = new SpeechSynthesisUtterance(cleanWord);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.8;
+    speechSynthesis.speak(utterance);
+  }
+</script>
 </body>
 </html>
